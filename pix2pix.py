@@ -6,7 +6,7 @@ from utils import *
 from discriminator import Discriminator
 from generator import Generator
 
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 
 
 class Pix2pix(object):
@@ -16,7 +16,9 @@ class Pix2pix(object):
         self.is_training = True
         self.data_files = glob(os.path.join(self.args.dataset_dir, self.args.dataset_name, self.args.phase, '*.*'))
         self.data_nums = len(self.data_files)
-        self.log_file = open(self.args.log_file, 'a')
+        self.counter = 0
+        self.prefix = self.args.prefix if self.args.prefix != 'None' else get_prefix()
+        self.log_file = open(os.path.join(self.prefix, self.args.log_file), 'a')
         self.batches = self.make_batches()
 
     def build(self):
@@ -67,7 +69,7 @@ class Pix2pix(object):
             self.parameter_count = tf.reduce_sum([tf.reduce_prod(tf.shape(v)) for v in tf.trainable_variables()])
 
         self.saver = tf.train.Saver(max_to_keep=1)
-        self.summary_writer = tf.summary.FileWriter(self.args.summaries_path)
+        self.summary_writer = tf.summary.FileWriter(os.path.join(self.prefix, self.args.summaries_path))
 
     def summary(self):
         self.gan_loss_summary = tf.summary.scalar('gan_loss', self.ema.average(self.g_loss_gan))
@@ -105,18 +107,24 @@ class Pix2pix(object):
         self.saver.save(sess, os.path.join(checkpoint_dir, self.model_name + '.model'), global_step=step)
 
     def test(self, sess):
-        ckpt = tf.train.latest_checkpoint(self.args.checkpoint_dir)
+        ckpt = tf.train.latest_checkpoint(os.path.join(self.prefix, self.args.checkpoint_dir))
         self.saver.restore(sess, ckpt)
-        idx = 0
+
+        test_dir = os.path.join(self.prefix, self.args.test_dir)
+        if not os.path.exists(test_dir):
+            os.makedirs(test_dir)
+
         for batch in self.batches:
             input_A, input_B = batch[0], batch[1]
             outputs = sess.run(self.g.outputs, feed_dict={self.inputs: input_B})
-            sample = np.concatenate([input_B, input_A, outputs], axis=2)[0, :, :, :]
-            sample = (sample + 1.0) * 127.5
-            sample = sample.astype('uint8')
-            save_images(sample, '{}/{}.png'.format(self.args.test_dir, idx))
-            idx += 1
-            print('[Saving image{}.png ...]'.format(idx))
+            batch_samples = np.concatenate([input_B, input_A, outputs], axis=2)
+            for i in range(self.args.batch_size):
+                sample = batch_samples[i, :, :, :]
+                sample = (sample + 1.0) * 127.5
+                sample = sample.astype('uint8')
+                save_images(sample, '{}/{}.png'.format(test_dir, self.counter))
+                self.counter += 1
+                print('[*] Saved image{}.png'.format(self.counter))
 
     def train(self, sess):
         self.summary()
@@ -127,7 +135,6 @@ class Pix2pix(object):
         log(self.log_file, '[Parameter count]: {}'.format(sess.run(self.parameter_count)))
         start_time = time.time()
 
-        counter = 0
         for epoch in range(self.args.epochs):
             log(self.log_file, 'Epoch %d:' % epoch)
             epoch_start_time = time.time()
@@ -141,13 +148,13 @@ class Pix2pix(object):
                 d_loss, g_loss, l1_loss = sess.run([self.ema.average(self.d_loss),
                                                     self.ema.average(self.g_loss),
                                                     self.ema.average(self.g_loss_l1)])
-                if counter % self.args.save_summaries == 0:
+                if self.counter % self.args.save_summaries == 0:
                     summaries = sess.run(self.summaries, feed_dict={self.inputs: input_B, self.targets: input_A})
-                    self.summary_writer.add_summary(summaries, global_step=counter)
-                if counter % self.args.show_loss == 0:
+                    self.summary_writer.add_summary(summaries, global_step=self.counter)
+                if self.counter % self.args.show_loss == 0:
                     log(self.log_file, '[Loss ]: D = %f | G = %f | L1 = %f' % (d_loss, g_loss, l1_loss))
 
-                counter += 1
+                self.counter += 1
 
             epoch_end_time = time.time()
             epoch_duration = epoch_end_time - epoch_start_time
@@ -161,4 +168,4 @@ class Pix2pix(object):
 
             if epoch % self.args.save_model == self.args.save_model - 1:
                 log(self.log_file, 'Saving model...')
-                self.save_model(sess, self.args.checkpoint_dir, counter)
+                self.save_model(sess, os.path.join(self.prefix, self.args.checkpoint_dir), self.counter)
