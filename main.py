@@ -23,14 +23,14 @@ parser.add_argument('--save_summaries', type=int, default=50, help='save summari
 parser.add_argument('--save_model', type=int, default=10, help='save model')
 parser.add_argument('--sample', type=int, default=0, help='sample')
 
+parser.add_argument('--prefix', type=str, default='None', help='prefix directory')
 parser.add_argument('--dataset_dir', type=str, default='datasets', help='dataset directory')
 parser.add_argument('--dataset_name', type=str, default='facades', help='dataset name')
 parser.add_argument('--phase', type=str, default='train', help='indicating training or testing phase')
-parser.add_argument('--checkpoint_dir', type=str, default='checkpoint4', help='checkpoint directory')
-parser.add_argument('--test_dir', type=str, default='test4', help='test directory')
-parser.add_argument('--sample_dir', type=str, default='sample', help='sample directory')
-parser.add_argument('--summaries_path', type=str, default='summaries4', help='summaries directory')
-parser.add_argument('--log_file', type=str, default='log4.txt', help='log file')
+parser.add_argument('--checkpoint_dir', type=str, default='checkpoint', help='checkpoint directory')
+parser.add_argument('--test_dir', type=str, default='test', help='test directory')
+parser.add_argument('--summaries_path', type=str, default='summaries', help='summaries directory')
+parser.add_argument('--log_file', type=str, default='log.txt', help='log file')
 
 
 def main():
