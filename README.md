@@ -46,18 +46,17 @@ and the test results will be displayed in the `run-xxxxxxxx-xxxxxx/test/` direct
 
 ### facades
 
-|input|target|output|
+|input|output|target|
 |:---:|:---:|:---:|
-|![](docs/facades/input_1.png)|![](docs/facades/target_1.png)|![](docs/facades/output_1.png)|
-|![](docs/facades/input_2.png)|![](docs/facades/target_2.png)|![](docs/facades/output_2.png)|
-|![](docs/facades/input_3.png)|![](docs/facades/target_3.png)|![](docs/facades/output_3.png)|
+|![](docs/facades/input_1.png)|![](docs/facades/output_1.png)|![](docs/facades/target_1.png)|
+|![](docs/facades/input_2.png)|![](docs/facades/output_2.png)|![](docs/facades/target_2.png)|
+|![](docs/facades/input_3.png)|![](docs/facades/output_3.png)|![](docs/facades/target_3.png)|
 
----
 
 ### cityscapes
 
-|input|target|output|
+|input|output|target|
 |:---:|:---:|:---:|
-|![](docs/cityscapes/input_1.png)|![](docs/cityscapes/target_1.png)|![](docs/cityscapes/output_1.png)|
-|![](docs/cityscapes/input_2.png)|![](docs/cityscapes/target_2.png)|![](docs/cityscapes/output_2.png)|
-|![](docs/cityscapes/input_3.png)|![](docs/cityscapes/target_3.png)|![](docs/cityscapes/output_3.png)|
+|![](docs/cityscapes/input_1.png)|![](docs/cityscapes/output_1.png)|![](docs/cityscapes/target_1.png)|
+|![](docs/cityscapes/input_2.png)|![](docs/cityscapes/output_2.png)|![](docs/cityscapes/target_2.png)|
+|![](docs/cityscapes/input_3.png)|![](docs/cityscapes/output_3.png)|![](docs/cityscapes/target_3.png)|
