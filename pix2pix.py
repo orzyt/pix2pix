@@ -141,17 +141,20 @@ class Pix2pix(object):
             np.random.shuffle(self.batches)
             for batch in self.batches:
                 input_A, input_B = batch[0], batch[1]
+
                 sess.run([self.d_train, self.d_loss_ema],
                          feed_dict={self.inputs: input_B, self.targets: input_A})
                 sess.run([self.g_train, self.g_loss_ema],
                          feed_dict={self.inputs: input_B, self.targets: input_A})
-                d_loss, g_loss, l1_loss = sess.run([self.ema.average(self.d_loss),
-                                                    self.ema.average(self.g_loss),
-                                                    self.ema.average(self.g_loss_l1)])
+
                 if self.counter % self.args.save_summaries == 0:
                     summaries = sess.run(self.summaries, feed_dict={self.inputs: input_B, self.targets: input_A})
                     self.summary_writer.add_summary(summaries, global_step=self.counter)
+
                 if self.counter % self.args.show_loss == 0:
+                    d_loss, g_loss, l1_loss = sess.run([self.ema.average(self.d_loss),
+                                                        self.ema.average(self.g_loss),
+                                                        self.ema.average(self.g_loss_l1)])
                     log(self.log_file, '[Loss ]: D = %f | G = %f | L1 = %f' % (d_loss, g_loss, l1_loss))
 
                 self.counter += 1
@@ -159,7 +162,7 @@ class Pix2pix(object):
             epoch_end_time = time.time()
             epoch_duration = epoch_end_time - epoch_start_time
             images_per_sec = self.data_nums / epoch_duration
-            sec_per_batch = epoch_duration / self.data_nums
+            sec_per_batch = epoch_duration / (self.data_nums / self.args.batch_size)
             log(self.log_file, '[Perf ]: %.1f images / sec, %.3f sec / batch' % (images_per_sec, sec_per_batch))
 
             duration = (epoch_end_time - start_time) / 60
