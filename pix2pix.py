@@ -1,10 +1,9 @@
-import os
 import tensorflow as tf
 import time
 from glob import glob
 from utils import *
-from discriminator import Discriminator
-from generator import Generator
+from models.discriminator import Discriminator
+from models.generator import Generator
 
 os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 
